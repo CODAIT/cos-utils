@@ -114,7 +114,7 @@ def do_upload(bucket,
         if os.path.isdir(pattern):
 
             # source specification identifies a directory
-            base_dir = pattern.rstrip(os.path.sep)
+            base_dir = os.path.abspath(pattern)
 
             if recursive:
                 source_pattern = '**/*'
