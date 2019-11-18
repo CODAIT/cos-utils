@@ -114,7 +114,7 @@ def do_upload(bucket,
         if os.path.isdir(pattern):
 
             # source specification identifies a directory
-            base_dir = pattern.rstrip(os.path.sep)
+            base_dir = os.path.abspath(pattern)
 
             if recursive:
                 source_pattern = '**/*'
@@ -133,6 +133,9 @@ def do_upload(bucket,
                     key = os.path.basename(file[len(base_dir):])
                 else:
                     key = file[len(base_dir)+1:]
+
+                # always use forward slashes in object keys
+                key = key.replace(os.path.sep, '/')
 
                 if prefix:
                     # add key name prefix
@@ -174,6 +177,9 @@ def do_upload(bucket,
                 key = os.path.basename(file[len(base_dir):])
             else:
                 key = file[len(base_dir)+1:]
+
+            # always use forward slashes in object keys
+            key = key.replace(os.path.sep, '/')
 
             if prefix:
                 # add key name prefix
