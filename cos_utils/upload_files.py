@@ -134,6 +134,9 @@ def do_upload(bucket,
                 else:
                     key = file[len(base_dir)+1:]
 
+                # always use forward slashes in object keys
+                key = key.replace(os.path.sep, '/')
+
                 if prefix:
                     # add key name prefix
                     key = '{}/{}'.format(prefix.rstrip('/'), key)
