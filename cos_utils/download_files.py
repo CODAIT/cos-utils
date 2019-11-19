@@ -39,7 +39,7 @@ def do_download(bucket,
                 source_spec,
                 access_key_id,
                 secret_access_key,
-                target_dir='.',
+                target_dir=os.getcwd(),
                 verbose=False):
     """
     Download the objects(s) identified by source_spec
@@ -78,11 +78,13 @@ def do_download(bucket,
 
     # verify that target_dir is valid
     if not target_dir:
-        target_dir = '.'
+        target_dir = os.getcwd()
 
     if not os.access(target_dir, os.W_OK):
         raise DownloadError('"{}" is not a writable directory'
                             .format(target_dir))
+
+    target_dir = os.path.abspath(target_dir)
 
     try:
         # instantiate Cloud Object Storage wrapper
