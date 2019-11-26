@@ -89,7 +89,8 @@ def do_download(bucket,
     try:
         # instantiate Cloud Object Storage wrapper
         cw = COSWrapper(access_key_id,
-                        secret_access_key)
+                        secret_access_key,
+                        connectivity_test_bucket=bucket)
     except COSWrapperError as cwe:
         raise DownloadError('Cannot access Cloud Object Storage: {}'
                             .format(cwe))

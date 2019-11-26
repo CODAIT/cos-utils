@@ -40,7 +40,8 @@ class COSWrapper:
                 self,
                 aws_access_key_id,
                 aws_secret_access_key,
-                endpoint_url=US_GEO_URL):
+                endpoint_url=US_GEO_URL,
+                connectivity_test_bucket=None):
         """
             :param aws_access_key_id: Access Key Id
             :type aws_access_key_id: str
@@ -51,6 +52,11 @@ class COSWrapper:
             :param endpoint_url: COS service endpoint URL; \
                 default: https://s3.us.cloud-object-storage.appdomain.cloud
             :type endpoint_url: str
+
+            :param connectivity_test_bucket: if specified, an attempt is made
+            to access the specified bucket otherwise bucket listing is
+            performed to verify that the credentials are valid;defaults to None
+            :type connectivity_test_bucket: str, optional
 
             :raises COSWrapperError: an error occurred
         """
@@ -66,8 +72,12 @@ class COSWrapper:
                                   aws_access_key_id=aws_access_key_id,
                                   aws_secret_access_key=aws_secret_access_key,
                                   endpoint_url=endpoint_url)
-            # verify connectitivy by sending a dummy request
-            self.get_bucket_list(1)
+            if not connectivity_test_bucket:
+                # verify connectitivy by sending a dummy request
+                self.get_bucket_list(1)
+            else:
+                self.cos.Bucket(connectivity_test_bucket).load()
+
         except Exception as ex:
             raise COSWrapperError(ex)
 

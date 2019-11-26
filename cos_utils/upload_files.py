@@ -92,7 +92,8 @@ def do_upload(bucket,
     try:
         # instantiate Cloud Object Storage wrapper
         cw = COSWrapper(access_key_id,
-                        secret_access_key)
+                        secret_access_key,
+                        connectivity_test_bucket=bucket)
     except COSWrapperError as cwe:
         raise UploadError('Cannot access Cloud Object Storage: {}'
                           .format(cwe))
