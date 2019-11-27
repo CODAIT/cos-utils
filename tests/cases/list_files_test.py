@@ -82,6 +82,46 @@ def test_file_no_wildcard():
     os.remove(str(Path(tempdir) / 'file1.txt'))
 
 
+def test_file_wildcard():
+
+    source_path = Path(os.path.dirname(__file__)) / 'assets'
+    pattern = 'file*.txt'
+
+    sources = list(source_path.glob(pattern))
+
+    spec = str(source_path / pattern)
+
+    count = do_upload(os.environ['x_region_bucket_name'],
+                      spec,
+                      os.environ['aws_access_key_id'],
+                      os.environ['aws_secret_access_key'])
+    assert isinstance(count, int)
+    assert count == len(sources)
+
+    objects = do_list(os.environ['x_region_bucket_name'],
+                      os.environ['aws_access_key_id'],
+                      os.environ['aws_secret_access_key'])
+    assert isinstance(objects, list)
+    assert len(objects) == len(sources)
+    for i in range(len(sources) - 1):
+        assert str(sources[i].name) in objects
+
+    tempdir = tempfile.mkdtemp()
+
+    count = do_download(os.environ['x_region_bucket_name'],
+                        pattern,
+                        os.environ['aws_access_key_id'],
+                        os.environ['aws_secret_access_key'],
+                        tempdir)
+    assert isinstance(count, int)
+    assert count == len(sources)
+
+    for source in sources:
+        file = str(source)
+        assert identical_files(file, str(Path(tempdir) / source.name))
+        os.remove(str(Path(tempdir) / source.name))
+
+
 if __name__ == '__main__':
     print(Path('.'))
     pytest.main([__file__])
