@@ -24,6 +24,7 @@ from pathlib import Path
 from cos_utils.download_files import do_download
 from cos_utils.list_files import do_list
 from cos_utils.upload_files import do_upload
+from cos_utils.remove_files import do_remove
 
 
 def identical_files(file1, file2):
@@ -52,37 +53,56 @@ def test_empty_bucket():
 
 def test_file_no_wildcard():
 
-    spec = str(Path(os.path.dirname(__file__))
-               / 'assets' / 'file1.txt')
+    test_empty_bucket()
+
+    source_path = Path(os.path.dirname(__file__)) / 'assets'
+    pattern = 'file1.txt'
+
+    sources = list(source_path.glob(pattern))
+
+    spec = str(source_path / pattern)
+
     count = do_upload(os.environ['x_region_bucket_name'],
                       spec,
                       os.environ['aws_access_key_id'],
                       os.environ['aws_secret_access_key'])
     assert isinstance(count, int)
-    assert count == 1
+    assert count == len(sources)
 
     objects = do_list(os.environ['x_region_bucket_name'],
                       os.environ['aws_access_key_id'],
                       os.environ['aws_secret_access_key'])
     assert isinstance(objects, list)
-    assert len(objects) == 1
-    assert objects[0] == 'file1.txt'
+    assert len(objects) == len(sources)
+    for i in range(len(sources) - 1):
+        assert str(sources[i].name) in objects
 
     tempdir = tempfile.mkdtemp()
 
     count = do_download(os.environ['x_region_bucket_name'],
-                        'file1.txt',
+                        pattern,
                         os.environ['aws_access_key_id'],
                         os.environ['aws_secret_access_key'],
                         tempdir)
     assert isinstance(count, int)
-    assert count == 1
+    assert count == len(sources)
 
-    assert identical_files(spec, str(Path(tempdir) / 'file1.txt'))
-    os.remove(str(Path(tempdir) / 'file1.txt'))
+    for source in sources:
+        file = str(source)
+        assert identical_files(file, str(Path(tempdir) / source.name))
+        os.remove(str(Path(tempdir) / source.name))
+
+    count = do_remove(os.environ['x_region_bucket_name'],
+                      os.environ['aws_access_key_id'],
+                      os.environ['aws_secret_access_key'])
+    assert count == len(sources)
+
+    test_empty_bucket()
 
 
 def test_file_wildcard():
+
+    test_empty_bucket()
 
     source_path = Path(os.path.dirname(__file__)) / 'assets'
     pattern = 'file*.txt'
@@ -120,6 +140,13 @@ def test_file_wildcard():
         file = str(source)
         assert identical_files(file, str(Path(tempdir) / source.name))
         os.remove(str(Path(tempdir) / source.name))
+
+    count = do_remove(os.environ['x_region_bucket_name'],
+                      os.environ['aws_access_key_id'],
+                      os.environ['aws_secret_access_key'])
+    assert count == len(sources)
+
+    test_empty_bucket()
 
 
 if __name__ == '__main__':
