@@ -10,4 +10,4 @@ before_script:
   - "python tests/cleanup.py"
 
 script:
-  - pytest tests/cases/ 
+  - pytest tests/cases/*
