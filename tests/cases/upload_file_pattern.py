@@ -43,7 +43,7 @@ def test_env_settings():
     assert os.environ.get('x_region_bucket_name') is not None
 
 
-def test_empty_bucket():
+def require_empty_bucket():
     objects = do_list(os.environ['x_region_bucket_name'],
                       os.environ['aws_access_key_id'],
                       os.environ['aws_secret_access_key'])
@@ -53,7 +53,7 @@ def test_empty_bucket():
 
 def test_file_no_wildcard():
 
-    test_empty_bucket()
+    require_empty_bucket()
 
     source_path = Path(os.path.dirname(__file__)) / 'assets'
     pattern = 'file1.txt'
@@ -97,12 +97,12 @@ def test_file_no_wildcard():
                       os.environ['aws_secret_access_key'])
     assert count == len(sources)
 
-    test_empty_bucket()
+    require_empty_bucket()
 
 
 def test_file_wildcard():
 
-    test_empty_bucket()
+    require_empty_bucket()
 
     source_path = Path(os.path.dirname(__file__)) / 'assets'
     pattern = 'file*.txt'
@@ -146,9 +146,8 @@ def test_file_wildcard():
                       os.environ['aws_secret_access_key'])
     assert count == len(sources)
 
-    test_empty_bucket()
+    require_empty_bucket()
 
 
 if __name__ == '__main__':
-    print(Path('.'))
     pytest.main([__file__])
